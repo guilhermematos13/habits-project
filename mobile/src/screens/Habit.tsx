@@ -1,5 +1,37 @@
-import { View } from "react-native";
+import { ScrollView, View, Text } from "react-native";
+import { useRoute } from "@react-navigation/native";
+import { BackButton } from "../components/BackButton";
+import dayjs from "dayjs";
+import { ProgressBar } from "../components/ProgressBar";
+
+interface Params {
+  date: string;
+}
 
 export function Habit() {
-  return <View className="flex-1 bg-background px-8 pt-16"></View>;
+  const route = useRoute();
+  const { date } = route.params as Params;
+
+  const parsedDate = dayjs(date);
+  const dayOfWeek = parsedDate.format("dddd");
+  const dayAndMouth = parsedDate.format("DD/MM");
+  return (
+    <View className="flex-1 bg-background px-8 pt-16">
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingBottom: 100 }}
+      >
+        <BackButton />
+
+        <Text className="mt-6 text-zinc-400 font-semibold text-base">
+          {dayOfWeek}
+        </Text>
+        <Text className="text-white text-extrabold text-3xl">
+          {dayAndMouth}
+        </Text>
+
+        <ProgressBar progress={30} />
+      </ScrollView>
+    </View>
+  );
 }
