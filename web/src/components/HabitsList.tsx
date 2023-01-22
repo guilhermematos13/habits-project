@@ -6,18 +6,19 @@ import { api } from "../lib/axios";
 
 interface HabitsListProps {
   date: Date;
+  onCompletedChanged: (completed: number) => void;
 }
 
 interface HabitsInfo {
-  possibleHabits: Array<{
+  possibleHabits: {
     id: string;
     title: string;
     created_at: string;
-  }>;
-  completedHabits: string;
+  }[];
+  completedHabits: string[];
 }
 
-export function HabitsList({ date }: HabitsListProps) {
+export function HabitsList({ date, onCompletedChanged }: HabitsListProps) {
   const [habitsInfo, setHabitsInfo] = useState<HabitsInfo>();
 
   useEffect(() => {
@@ -32,6 +33,28 @@ export function HabitsList({ date }: HabitsListProps) {
       });
   }, []);
 
+  async function handleToggleHabit(habitId: string) {
+    const isHabitAlreadyCompleted =
+      habitsInfo!.completedHabits.includes(habitId);
+
+    await api.patch(`/habits/${habitId}/toggle`);
+
+    let completedHabits: string[] = [];
+
+    if (isHabitAlreadyCompleted) {
+      completedHabits = habitsInfo!.completedHabits.filter(
+        (id) => id !== habitId
+      );
+    } else {
+      completedHabits = [...habitsInfo!.completedHabits, habitId];
+    }
+
+    setHabitsInfo({
+      possibleHabits: habitsInfo!.possibleHabits,
+      completedHabits,
+    });
+  }
+
   const isDateInPast = dayjs(date).endOf("day").isBefore(new Date());
 
   return (
@@ -40,6 +63,9 @@ export function HabitsList({ date }: HabitsListProps) {
         return (
           <Checkbox.Root
             key={habit.id}
+            onCheckedChange={() => {
+              handleToggleHabit(habit.id);
+            }}
             checked={habitsInfo.completedHabits.includes(habit.id)}
             disabled={isDateInPast}
             className="flex items-center gap-3 group"
