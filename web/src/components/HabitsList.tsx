@@ -53,6 +53,8 @@ export function HabitsList({ date, onCompletedChanged }: HabitsListProps) {
       possibleHabits: habitsInfo!.possibleHabits,
       completedHabits,
     });
+
+    onCompletedChanged(completedHabits.length);
   }
 
   const isDateInPast = dayjs(date).endOf("day").isBefore(new Date());
